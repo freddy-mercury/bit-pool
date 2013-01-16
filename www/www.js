@@ -1,9 +1,10 @@
 var http=require("http");
-function start() {
+function start(port, host) {
+    host = host || '127.0.0.1';
     http.createServer(function(request, response) {
         response.write("OK");
         response.end();
-    }).listen(80);
-    console.log("WWW started on 80 port");
+    }).listen(port, host);
+    console.log("WWW listening "+host+":"+port);
 }
 exports.start = start;

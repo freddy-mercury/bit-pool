@@ -1,13 +1,25 @@
-var http=require("http"), basic_auth=require("./../lib/basic-auth");
+var http=require("http"), basic_auth=require("./../lib/basic-auth"), bitcoin=require("bitcoin");
 
-function start() {
+function start(port, host) {
+    host = host || '127.0.0.1';
     http.createServer(function(req, res){
-        basic_auth.auth(req, res, ok);
-    }).listen(8332);
-    console.log("POOL started on 8332 port");
+        if (req.url != '/favicon.ico') {
+            basic_auth.auth(req, res, getinfo);
+        }
+    }).listen(port, host);
+    console.log("POOL listening "+host+":"+port);
 
-    function ok(req, res, credentials) {
-        console.log('PASSED:' + credentials['username']);
+    function getinfo(req, res, credentials) {
+        var client = new bitcoin.Client({
+            host: '127.0.0.1',
+            port: 8332,
+            user: 'rpcuser',
+            pass: 'rpcpass'
+        });
+        client.getInfo(function(err, data) {
+            if (err) return console.log(err);
+            res.end(JSON.stringify(data));
+        });
     }
 }
 exports.start = start;
